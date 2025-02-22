@@ -12,34 +12,26 @@ script.onload = function () {
 
 // Prompt user for context if not set
 window.onload = function() {
-    setTimeout(() => {
-        let context = localStorage.getItem("interactionContext");
-        if (!context || context === "Casual Meeting") {
-            context = prompt("What is the context of your interaction? (e.g., Serious Meeting, Friends, Casual Chat)");
-            if (context) {
-                localStorage.setItem("interactionContext", context);
-                chrome.runtime.sendMessage({ action: "updateContext", context: context }); // Send context to popup
-                console.log("User selected context:", context);
-            }
+    let context = localStorage.getItem("interactionContext");
+    
+    if (!context || context === "Casual Meeting") {
+        context = prompt("What is the context of your interaction? (e.g., Serious Meeting, Friends, Casual Chat)");
+        if (context) {
+            localStorage.setItem("interactionContext", context);
+            chrome.runtime.sendMessage({ action: "updateContext", context: context }); // Send context to popup
+            console.log("User selected context:", context);
         }
-        
+    }
+
+    // Wait until the overlay is added before updating the context
+    setTimeout(() => {
         let contextElement = document.getElementById("context");
         if (contextElement) {
             contextElement.innerText = context || "General";
         } else {
             console.error("Context element not found!");
         }
-    }, 500); // Small delay to ensure the DOM is ready
-};
-s// Send context to popup
-            console.log("User selected context:", context);
-        }
-    }
-    document.getElementById("context").innerText = context || "General";
-};); // Send context to popup
-        console.log("User selected context:", context);
-    }
-    document.getElementById("context").innerText = context;
+    }, 100); // Small delay to ensure the DOM is ready
 };
 
 // Create an overlay div
