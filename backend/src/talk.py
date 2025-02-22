@@ -125,47 +125,22 @@ class VideoStreamer():
         self.wave_file.setframerate(self.rate)
         self.audio_frames = []
 
-    def log_emotion(self, threshold=0.5):
-        # Log the result every half second only if there's no error.
-        if self.starting_time - self.last_starting_time >= threshold:
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            with open(self.log_path, "a", newline="") as file:
-                self.log_writer.writerow([timestamp, self.current_dominant_emotion, self.current_confidence])
-
-        self.last_starting_time = self.starting_time
-     
-    def append_audio_to_log(self, transcript):
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(self.log_path, "a", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerow([timestamp, "TRANSCRIPT", "", transcript])
+    def stop_recording(self):
+        # Stop video
+        if self.stream:
+            self.stream.release()
+            self.stream = None
             
-    """
-    Returns a tuple, dominant emotion and confidence as a percentage float 
-    """
-    def analyze_faces(self, frame):
-     # Perform video emotion analysis
-        try:
-            analysis = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
-            if isinstance(analysis, list):
-                analysis = analysis[0]
-            dominant_emotion = analysis.get("dominant_emotion", "No face detected")
-            emotion_scores = analysis.get("emotion", {})
-            confidence = emotion_scores.get(dominant_emotion, 0)
+        # Stop audio
+        if self.audio_stream:
+            self.audio_stream.stop_stream()
+            self.audio_stream.close()
+            self.audio_stream = None
             
-            # Draw bounding box if available
-            region = analysis.get("region", {})
-            if region:
-                x, y, w, h = region.get("x", 0), region.get("y", 0), region.get("w", 0), region.get("h", 0)
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        except Exception as e:
-            dominant_emotion = f"Error: {str(e)}"
-            confidence = 0
-
-        self.current_dominant_emotion = dominant_emotion
-        self.current_confidence = confidence
-
-        cv2.imshow('Webcam', frame)
+        if self.wave_file:
+            self.wave_file.writeframes(b''.join(self.audio_frames))
+            self.wave_file.close()
+            self.wave_file = None
 
     def render(self):
         frame_count = 0

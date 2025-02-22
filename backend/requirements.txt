@@ -4,3 +4,7 @@ tiktoken
 opencv-python
 numpy
 pyaudio
+tensorflow
+tf-keras
+deepface
+whisper
