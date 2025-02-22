@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoom Tone Detector</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 10px; width: 250px; text-align: center; }
+        h2 { font-size: 16px; margin-bottom: 10px; }
+        p { font-size: 14px; margin-bottom: 10px; }
+        button { padding: 5px 10px; margin-top: 10px; cursor: pointer; width: 100%; }
+        #status { font-weight: bold; margin-top: 10px; color: gray; }
+    </style>
+</head>
+<body>
+    <h2>Conversation Guidance</h2>
+    <p><strong>Emotion:</strong> <span id="emotion">Loading...</span></p>
+    <p><strong>Suggestion:</strong> <span id="suggestion">Loading...</span></p>
+    <button id="recordButton">Start Recording</button>
+    <p id="status">Not Recording</p>
+
+    <script>
+        let isRecording = false;
+
+        document.getElementById("recordButton").addEventListener("click", function() {
+            isRecording = !isRecording;
+            chrome.runtime.sendMessage({ action: "toggleRecording" });
+
+            // Update button text and status message
+            document.getElementById("recordButton").innerText = isRecording ? "Stop Recording" : "Start Recording";
+            document.getElementById("status").innerText = isRecording ? "Recording in Progress..." : "Not Recording";
+            document.getElementById("status").style.color = isRecording ? "red" : "gray";
+        });
+
+        // Load stored emotion & suggestion data
+        chrome.storage.local.get(["emotion", "suggestion"], (data) => {
+            document.getElementById("emotion").innerText = data.emotion || "No emotion detected yet.";
+            document.getElementById("suggestion").innerText = data.suggestion || "No suggestions available.";
+        });
+    </script>
+</body>
+</html>
+

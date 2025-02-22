@@ -1,0 +1,38 @@
+{
+    "manifest_version": 3,
+    "name": "Lighthouse",
+    "version": "1.0",
+    "description": "Detects tone in Zoom meetings and provides conversational suggestions as well as emotion detection.",
+    "permissions": ["tabs", "activeTab", "storage"],
+    "host_permissions": ["https://*.zoom.us/*"],
+    "web_accessible_resources": [
+        {
+            "resources": ["libs/lame.min.js"],
+            "matches": ["<all_urls>"]
+        }
+    ],
+    "content_scripts": [
+        {
+            "matches": ["https://*.zoom.us/*"],
+            "js": ["content.js"]
+        }
+    ],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "icons/icon-16.png",
+            "48": "icons/icon-48.png",
+            "128": "icons/icon-128.png"
+        }
+    },
+    "icons": {
+        "16": "icons/icon-16.png",
+        "48": "icons/icon-48.png",
+        "128": "icons/icon-128.png"
+    }
+}
+
