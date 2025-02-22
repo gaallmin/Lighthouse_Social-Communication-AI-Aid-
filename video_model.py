@@ -14,6 +14,8 @@ if not os.path.exists(log_file):
         writer.writerow(["timestamp", "emotion", "confidence"])
 
 # Initialize webcam capture
+#video_file = ""
+#cap = cv2.VideoCapture(video_file)
 cap = cv2.VideoCapture(0)
 
 
