@@ -133,7 +133,13 @@ class VideoStreamer():
                 self.log_writer.writerow([timestamp, self.current_dominant_emotion, self.current_confidence])
 
         self.last_starting_time = self.starting_time
-
+     
+    def append_audio_to_log(self, transcript):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(self.log_path, "a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow([timestamp, "TRANSCRIPT", "", transcript])
+            
     """
     Returns a tuple, dominant emotion and confidence as a percentage float 
     """
