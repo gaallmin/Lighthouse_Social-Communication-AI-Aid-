@@ -36,10 +36,7 @@ while True:
         emotion_scores = analysis.get("emotion", {})
         confidence = emotion_scores.get(dominant_emotion, 0)
         
-        # Mark that we got a successful analysis and want to log this frame.
         log_this_frame = True
-        
-        # Draw a bounding box around the face if region information is available.
         region = analysis.get("region", {})
         if region:
             x, y, w, h = region.get("x", 0), region.get("y", 0), region.get("w", 0), region.get("h", 0)
