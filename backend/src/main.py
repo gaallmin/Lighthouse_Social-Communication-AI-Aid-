@@ -27,4 +27,6 @@ language = at.get_language(audio_path)
 print(f"Detected language: {language}")
 text = at.transcribe()
 
+video_streamer.append_audio_to_log(text)
+
 print(text)

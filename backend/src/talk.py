@@ -61,7 +61,7 @@ class VideoStreamer():
         self.log_path = log_path
         self.log_source = open(log_path, 'w', newline='')
         self.log_writer = csv.writer(self.log_source)
-        self.log_writer.writerow(["timestamp", "emotion", "confidence"])
+        self.log_writer.writerow(["timestamp", "emotion", "confidence", "transcription"])
 
         self.starting_time = 0
         self.last_starting_time = 0
