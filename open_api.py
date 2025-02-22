@@ -1,32 +1,44 @@
+from pydantic import BaseModel
 from openai import OpenAI
 import os
 import pandas as pd
 
-# API Key in .env file
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+class Pointer(BaseModel):
+    subtext: str
+    advice: str
+    reflection: str
 
-# Current working directory
-CWD = os.getcwd()
+def getPointer():
+    # API Key in .env file
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
-# Conversation data filepath
-CONVO_FILEPATH = os.path.join(CWD,"convo_data.csv")
+    # Current working directory
+    CWD = os.getcwd()
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+    # Conversation data filepath
+    CONVO_FILEPATH = os.path.join(CWD,"convo_data.csv")
 
-data = pd.read_csv(CONVO_FILEPATH)
+    client = OpenAI(api_key=OPENAI_API_KEY)
 
-prompt= f""" I'm speaking to someone, some of their previous statements in table format are: {data}. Their latest statement\
-        is the last line in the sheet. Considering the associated emotion and confidence level, give maximum 8 words on any\
-        subtext that is being conveyed and 8 more on any advice you would give on how to act in this situation."""
+    data = pd.read_csv(CONVO_FILEPATH)
 
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {
-            "role": "user", 
-            "content": prompt
-        }
-    ]
-)
+    prompt= f""" I'm in the middle of a conversation with someone, some of their previous statements in table format are: {data}.\
+            Their latest statement is the last line in the sheet. Considering the associated emotion and confidence level, give \
+            maximum 50 characters on any subtext that is being conveyed and 50 more characters on any advice you would give on \
+            how to act in this situation, finally give 150 characters on things to reflect on after the conversation is over, give full context for this."""
 
-print(response.choices[0].message.content)
+    pointer = client.beta.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "user", 
+                "content": prompt
+            }
+        ],
+        response_format=Pointer,
+    )
+
+    return pointer
+
+pointer = getPointer()
+print(pointer.choices[0].message.content)
