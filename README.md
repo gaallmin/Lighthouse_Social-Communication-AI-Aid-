@@ -1,2 +1,2 @@
 # Hackathon--Hackireland-Group7
-Hack Trinity event group 7
+HackIreland event group 7
