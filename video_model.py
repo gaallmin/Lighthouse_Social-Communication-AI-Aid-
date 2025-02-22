@@ -5,7 +5,7 @@ import csv
 import os
 import time
 
-def video_anal(video_path, log_file):
+def video(log_file): #video_path, 
     if not os.path.exists(log_file):
         with open(log_file, "w", newline="") as file:
             writer = csv.writer(file)
@@ -73,3 +73,5 @@ def video_anal(video_path, log_file):
     cap.release()
     cv2.destroyAllWindows()
     return log_file
+
+video('face_log.csv')
