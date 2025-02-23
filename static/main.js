@@ -1,56 +1,63 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
+const fs = require("fs");
+const axios = require("axios");
+const FormData = require("form-data");
 
-let win; // Declare the window variable globally
+// Global variables for recording state
+let win;
+let recordingVideo = false;
+let recordingAudio = false;
+let audioChunks = [];
 
 function createWindow() {
   win = new BrowserWindow({
-      width: 1200,           // ✅ Set exact width
-      height: 800,           // ✅ Set exact height
-      minWidth: 1200,        // ✅ Prevents shrinking
-      minHeight: 800,        // ✅ Prevents shrinking
-      maxWidth: 1200,        // ✅ Prevents stretching
-      maxHeight: 800,        // ✅ Prevents stretching
-      frame: false,          // ✅ Removes default window border
-      transparent: true,     // ✅ Ensures full transparency
-      hasShadow: false,      // ✅ Removes any unwanted shadows
-      fullscreenable: true, // ✅ Prevents fullscreen mode
-      resizable: true,      // ✅ Prevents manual resizing
+      width: 1200,
+      height: 800,
+      minWidth: 1200,
+      minHeight: 800,
+      maxWidth: 1200,
+      maxHeight: 800,
+      frame: false,
+      transparent: true,
+      hasShadow: false,
+      fullscreenable: true,
+      resizable: true,
       webPreferences: {
           preload: path.join(__dirname, "preload.js"),
           nodeIntegration: false,
           contextIsolation: true
       }
   });
-
   win.loadFile("index.html");
 }
 
-// ✅ Start Video Recording
+// IPC: Start Video Recording
 ipcMain.on("start-video", () => {
     recordingVideo = true;
     console.log("Video recording started");
 });
 
-// ✅ Stop Video Recording
+// IPC: Stop Video Recording
 ipcMain.on("stop-video", () => {
     recordingVideo = false;
     console.log("Video recording stopped");
 });
 
-// ✅ Start Audio Recording
+// IPC: Start Audio Recording
 ipcMain.on("start-audio", () => {
     recordingAudio = true;
     console.log("Audio recording started");
     audioChunks = [];
 });
 
-// ✅ Stop Audio Recording & Send to Flask
+// IPC: Stop Audio Recording & Send to Flask
 ipcMain.on("stop-audio", async () => {
     recordingAudio = false;
     console.log("Audio recording stopped");
 
     if (audioChunks.length > 0) {
+        // Create a Blob from the audioChunks and save it
         const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
         const audioPath = path.join(__dirname, "temp_audio.wav");
         fs.writeFileSync(audioPath, Buffer.from(await audioBlob.arrayBuffer()));
@@ -59,20 +66,12 @@ ipcMain.on("stop-audio", async () => {
         formData.append("audio", fs.createReadStream(audioPath));
 
         axios.post("http://127.0.0.1:5000/transcribe", formData, {
-            headers: { "Content-Type": "multipart/form-data" }
+            headers: formData.getHeaders()
         })
         .then(response => console.log("Transcription:", response.data.transcription))
         .catch(err => console.error("Error sending audio:", err));
     }
 });
 
-// ✅ Handle Frame Sending (Only When Video is Recording)
-ipcMain.on("send-frame", (event, imageData) => {
-    if (recordingVideo) {
-        axios.post("http://127.0.0.1:5000/upload", { image: imageData })
-            .then(response => console.log("Emotion Detected:", response.data))
-            .catch(err => console.error("Error sending frame:", err));
-    }
-});
-
-app.whenReady().then(createWindow);
+// IPC: Handle Frame Sending (Only When Video is Recording)
+ipc

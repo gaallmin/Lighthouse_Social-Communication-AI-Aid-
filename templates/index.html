@@ -1,59 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot with Webcam</title>
-    <link rel="stylesheet" href="static\style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lighthouse</title>
+  <!-- Link your CSS file -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-        <!-- Custom Title Bar (Draggable) -->
-<div class="drag-bar">
-  <h3 class="drag-title">Lighthouse</h3>
-</div>
-  <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <div class="window-controls">
-          <button id="minimizeApp">➖</button>
-          <button id="fullscreenApp">🗖</button>
-          <button id="closeApp">❌</button>
-      </div>
-
-<div class="sidebar">
-  <div class="sidebar-header">
-      <img src="static/img/team7logo.png" alt="Lighthouse Logo" class="logo">
-      <h3 class="sidebar-title">Lighthouse</h3>
+  <!-- Custom Title Bar (Draggable) -->
+  <div class="drag-bar">
+    <h3 class="drag-title">Lighthouse</h3>
+    <!-- Close button only -->
+    <button id="closeApp" class="close-btn">❌</button>
   </div>
-  <ul>
-      <li id="homeTab" class="active">🏠 Home</li>
-      <li id="historyTab">History</li>>
-      <li id="aboutTab">ℹ️ Personal Stats</li>
-      <li id="settingsTab">⚙️ Settings</li>
-  </ul>
-</div>
 
-
-        <!-- Main Content -->
-        <div class="content">
-          <!-- Chat Messages (Now in the Main Content Area) -->
-          <div id="messages"></div>
-      
-          <!-- Input, Send Button, and Webcam Button at the Bottom -->
-          <div id="chatbox">
-              <input type="text" id="userInput" placeholder="Type a message...">
-              <button id="sendBtn">Send</button>
-              <button id="startWebcam">Start Webcam</button>
-          </div>
-      
-          <!-- Webcam Video (Will Only Appear When Started) -->
-          <video id="webcam" autoplay style="display: none;"></video>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <img src="img/team7logo.png" alt="Lighthouse Logo" class="logo" />
+        <h3 class="sidebar-title">Lighthouse</h3>
       </div>
+      <ul>
+        <li id="homeTab" class="active">🏠 Home</li>
+        <li id="historyTab">History</li>
+        <li id="aboutTab">ℹ️ Personal Stats</li>
+        <li id="settingsTab">⚙️ Settings</li>
+      </ul>
     </div>
 
-    <!-- Link JavaScript -->
-    <script src="static\scripts.js"></script>
-    <script src="static\rerender.js"></script>
+    <!-- Main Content -->
+    <div class="content">
+      <h2>Chatbot with Webcam</h2>
 
+      <!-- Chat Messages -->
+      <div id="messages"></div>
+
+      <!-- Chatbox (separate from recording controls) -->
+      <div id="chatbox">
+        <input type="text" id="userInput" placeholder="Type a message..."/>
+        <button id="sendBtn">Send</button>
+      </div>
+
+      <!-- Recording Controls -->
+      <div id="recording-controls">
+        <button id="startWebcam">Start Webcam</button>
+        <button id="stopWebcam">Stop Webcam</button>
+        <button id="startAudio">Start Audio</button>
+        <button id="stopAudio">Stop Audio</button>
+      </div>
+
+      <!-- Video Container (centered) -->
+      <div class="video-container">
+        <video id="webcam" autoplay style="display: none;"></video>
+        <!-- Video-specific controls -->
+        <div class="video-controls">
+          <button id="minimizeVideo">➖</button>
+          <button id="fullscreenVideo">🗖</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='rerender.js') }}"></script>
+  <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 </html>

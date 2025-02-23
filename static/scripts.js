@@ -11,6 +11,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const userInput = document.getElementById("userInput");
     const messagesDiv = document.getElementById("messages");
 
+    // Video-specific control buttons (for video only)
+    const minimizeVideoBtn = document.getElementById("minimizeVideo");
+    const fullscreenVideoBtn = document.getElementById("fullscreenVideo");
+
     // 🚀 Sidebar Tabs Handling
     const sidebarItems = document.querySelectorAll(".sidebar li");
     sidebarItems.forEach(item => {
@@ -25,12 +29,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 🚀 Start Webcam
+    // 🚀 Start Webcam (Video recording)
     startWebcamBtn.addEventListener("click", async () => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         webcam.srcObject = stream;
-        webcam.style.display = "block"; // Show webcam when started
-        window.electronAPI.startVideo(); // Notify Electron
+        webcam.style.display = "block"; // Show video element
+        window.electronAPI.startVideo(); // Notify main process (if needed)
     });
 
     // 🚀 Stop Webcam
@@ -39,7 +43,26 @@ document.addEventListener("DOMContentLoaded", function () {
             webcam.srcObject.getTracks().forEach(track => track.stop());
             window.electronAPI.stopVideo();
         }
-        webcam.style.display = "none"; // Hide webcam
+        webcam.style.display = "none";
+    });
+
+    // 🚀 Video Controls: Minimize (hide) and Fullscreen (for video container)
+    minimizeVideoBtn.addEventListener("click", () => {
+        // Toggle video visibility only
+        if (webcam.style.display === "none") {
+            webcam.style.display = "block";
+        } else {
+            webcam.style.display = "none";
+        }
+    });
+
+    fullscreenVideoBtn.addEventListener("click", () => {
+        const videoContainer = document.querySelector(".video-container");
+        if (!document.fullscreenElement) {
+            videoContainer.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
     });
 
     // 🚀 Start Audio Recording
@@ -66,11 +89,12 @@ document.addEventListener("DOMContentLoaded", function () {
         window.electronAPI.stopAudio();
     });
 
-    // 🚀 Send Message to Chatbot
+    // 🚀 Send Chat Message
     sendBtn.addEventListener("click", function () {
         const userMessage = userInput.value.trim();
         if (userMessage === "") return;
 
+        // Send message via Electron API (if used) and update UI
         window.electronAPI.sendUserMessage(userMessage);
         rerender.addMessage(userMessage, "user");
         userInput.value = "";
@@ -90,8 +114,6 @@ document.addEventListener("DOMContentLoaded", function () {
         rerender.addMessage(response, "bot");
     });
 
-    // 🚀 Handle Window Controls (Minimize, Fullscreen, Close)
-    document.getElementById("minimizeApp").addEventListener("click", () => window.electronAPI.minimizeApp());
-    document.getElementById("fullscreenApp").addEventListener("click", () => window.electronAPI.toggleFullscreen());
+    // (Optional) If you still want global window controls for closing the app:
     document.getElementById("closeApp").addEventListener("click", () => window.electronAPI.closeApp());
 });
