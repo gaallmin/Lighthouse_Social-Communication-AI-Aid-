@@ -72,7 +72,7 @@ def transcribe_audio():
             continue
 
         # Save recorded audio to a temporary file
-        wf = wave.open(".temp.wav", "wb")
+        wf = wave.open("temp.wav", "wb")
         wf.setnchannels(CHANNELS)
         wf.setsampwidth(audio.get_sample_size(FORMAT))
         wf.setframerate(RATE)
