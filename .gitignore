@@ -1,2 +1,4 @@
 .env
 __pycache__
+convo_data.csv
+temp.wav
