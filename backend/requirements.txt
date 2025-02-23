@@ -1,0 +1,10 @@
+flask==3.1.0
+ffmpeg-python
+tiktoken
+opencv-python
+numpy
+pyaudio
+tensorflow
+tf-keras
+deepface
+whisper
