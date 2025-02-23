@@ -59,9 +59,10 @@ class VideoStreamer():
         self.chunk = 1024
 
         self.log_path = log_path
-        self.log_source = open(log_path, 'w', newline='')
-        self.log_writer = csv.writer(self.log_source)
-        self.log_writer.writerow(["timestamp", "emotion", "confidence", "transcription"])
+        if not os.path.exists(self.log_path):
+            with open(log_path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(["timestamp", "emotion", "confidence", "transcription"])
 
         self.starting_time = 0
         self.last_starting_time = 0
@@ -103,6 +104,21 @@ class VideoStreamer():
         except Exception as e:
             print(f"Audio recording failed: {str(e)}")
 
+    def append_to_last_row(self, transcription) -> None:
+        # Read all rows from the CSV
+        with open(self.log_path, 'r', newline='') as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+        
+        print(rows[-1])
+        rows[-1][3] = ''
+        rows[-1].append(transcription);
+    
+        # Write back to the CSV
+        with open(self.log_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerows(rows)
+
     def start_recording(self):
         # Initialize video writer
         #fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -129,8 +145,11 @@ class VideoStreamer():
         # Log the result every half second only if there's no error.
         if self.starting_time - self.last_starting_time >= threshold:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            with open(self.log_path, "a", newline="") as file:
-                self.log_writer.writerow([timestamp, self.current_dominant_emotion, self.current_confidence])
+            #with open(self.log_path, "a", newline="") as file:
+            print("[LOGGING] emotion")
+            with open(self.log_path, "a", newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([timestamp, self.current_dominant_emotion, self.current_confidence, None])
 
         self.last_starting_time = self.starting_time
 
@@ -177,6 +196,8 @@ class VideoStreamer():
                 self.analyze_faces(frame)
                 self.log_emotion()
 
+                self.starting_time = int(frame_count / self.fps)
+
             if key == ord('q'):
                 break
             elif key == ord('s') and self.recording:
@@ -199,7 +220,6 @@ class VideoStreamer():
                     self.stream.release()
                     self.stream = None
 
-                self.log_source.close() 
             elif key == ord('r') and not self.recording:
                 self.fps = int(self.cap.get(cv2.CAP_PROP_FPS))
                 self.recording = True
@@ -209,9 +229,7 @@ class VideoStreamer():
                  # Start the audio recording thread
                 self.audio_thread = threading.Thread(target=self.record_audio, args=(self.audio_stop_event, self.audio_path))
                 self.audio_thread.start()
-
                 print("Recording started...")
-                self.starting_time = int(frame_count / self.fps)
 
             frame_count += 1
 
