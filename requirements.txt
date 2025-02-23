@@ -1,4 +1,5 @@
 deepface==0.0.93
+numpy==1.23.5
 openai==1.64.0
 openai_whisper==20240930
 opencv_contrib_python==4.7.0.72
@@ -6,3 +7,5 @@ opencv_python==4.11.0.86
 pandas==2.2.3
 PyAudio==0.2.14
 pydantic==2.10.6
+PyQt5==5.15.11
+PyQt5_sip==12.17.0
