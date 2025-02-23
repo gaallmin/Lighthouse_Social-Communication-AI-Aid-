@@ -1,3 +1,8 @@
+# Main file for Lighthouse AI backend
+
+# This file creates an AVPointer - Audio-Visual Pointer for Conversations. it uses DeepFace for 
+# emotion detection, Whisper for speech transcription and OpenAI API for generating conversation pointers
+
 import cv2
 import os
 import csv
