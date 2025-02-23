@@ -1,3 +1,6 @@
 .venv/
 face_log.csv
 output.wav
+__pycache__/
+.env
+*.wav
