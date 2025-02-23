@@ -1,0 +1,8 @@
+timestamp,emotion,confidence,transcription
+2025-02-23 01:48:38,neutral,63.413136,
+2025-02-23 01:48:40,happy,99.946144,, This is a short statement.
+2025-02-23 01:48:55,fear,89.19625,
+2025-02-23 01:48:57,happy,99.612595,
+2025-02-23 01:49:00,neutral,86.4595,
+2025-02-23 01:49:01,fear,38.16333,
+2025-02-23 01:49:03,fear,56.991352,, This is the final statement.
