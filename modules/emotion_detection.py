@@ -25,8 +25,8 @@ CHUNK = 1024
 class AVPointerCreator():
     # Toggle variables
     def __init__(self):
-        self.face_detection_enabled = False  # Start with face detection enabled
-        self.transcription_enabled = False   # Start with transcription enabled
+        self.face_detection_enabled = True  # Start with face detection enabled
+        self.transcription_enabled = True   # Start with transcription enabled
         self.transcription_text = ""  # Store last transcribed text
         self.stop_transcription = False  # Control flag for transcription
         self.dominant_emotion = ""  # Store last dominant emotion
@@ -91,7 +91,7 @@ class AVPointerCreator():
                 fieldnames = ["time", "transcription", "emotion", "confidence"]
                 writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
                 writer.writerow({"time": time.time(), "transcription": self.transcription_text, "emotion": self.dominant_emotion, "confidence": self.confidence})
-
+                print("Writing row", time.time(), self.transcription_text)
                 pointer = getPointer()
                 print(pointer.choices[0].message.content)
 
@@ -146,11 +146,11 @@ class AVPointerCreator():
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):  # Quit on "q"
                 break
-            elif key == ord('d'):  # Toggle face detection and transcription on "d"
-                self.face_detection_enabled = not self.face_detection_enabled
-                self.transcription_enabled = not self.transcription_enabled
-                print(f"Face Detection: {'Enabled' if self.face_detection_enabled else 'Disabled'}")
-                print(f"Transcription: {'Enabled' if self.transcription_enabled else 'Disabled'}")
+            # elif key == ord('d'):  # Toggle face detection and transcription on "d"
+            #     self.face_detection_enabled = not self.face_detection_enabled
+            #     self.transcription_enabled = not self.transcription_enabled
+            #     print(f"Face Detection: {'Enabled' if self.face_detection_enabled else 'Disabled'}")
+            #     print(f"Transcription: {'Enabled' if self.transcription_enabled else 'Disabled'}")
                     
         # Cleanup
         video.release()

@@ -13,7 +13,7 @@ const rerender = (() => {
         }
 
         messagesDiv.appendChild(msgDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to latest message
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
     return { addMessage };

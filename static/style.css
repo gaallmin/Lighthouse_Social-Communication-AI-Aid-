@@ -1,32 +1,30 @@
-/* Reset default styles */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Base */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #f0f2f5;
   color: #333;
 }
 
-/* Custom draggable title bar */
+/* Title Bar */
 .drag-bar {
   background-color: #4b79a1;
   color: #fff;
   padding: 10px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   cursor: move;
-  justify-content: space-between; /* Space for close button */
 }
-
 .drag-title {
   font-size: 1.2em;
 }
-
-/* Close button only */
 .close-btn {
   background: none;
   border: none;
@@ -35,13 +33,13 @@ body {
   color: #fff;
 }
 
-/* Container for entire layout */
+/* Layout */
 .app-container {
   display: flex;
   height: calc(100vh - 50px);
 }
 
-/* Sidebar styling */
+/* Sidebar */
 .sidebar {
   width: 250px;
   background-color: #283e4a;
@@ -51,40 +49,34 @@ body {
   align-items: center;
   padding-top: 20px;
 }
-
 .sidebar-header {
   text-align: center;
   margin-bottom: 20px;
 }
-
 .sidebar-header .logo {
   width: 100px;
   margin-bottom: 10px;
 }
-
 .sidebar-header .sidebar-title {
   font-size: 1.5em;
 }
-
 .sidebar ul {
   list-style: none;
   width: 100%;
   padding: 0;
 }
-
 .sidebar ul li {
   padding: 15px 20px;
+  text-align: center;
   cursor: pointer;
   transition: background 0.3s;
-  text-align: center;
 }
-
 .sidebar ul li:hover,
 .sidebar ul li.active {
   background-color: #3a5a70;
 }
 
-/* Main content area */
+/* Main Content */
 .content {
   flex: 1;
   display: flex;
@@ -92,36 +84,33 @@ body {
   padding: 20px;
   position: relative;
 }
-
 .content h2 {
   margin-bottom: 10px;
 }
 
-/* Chat messages area */
+/* Chat Messages */
 #messages {
   flex: 1;
-  overflow-y: auto;
   background: #fff;
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
 
-/* Chatbox (input + send) */
+/* Chatbox */
 #chatbox {
   display: flex;
   gap: 10px;
   margin-bottom: 10px;
 }
-
 #chatbox input[type="text"] {
   flex: 1;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
 #chatbox button {
   padding: 10px 15px;
   border: none;
@@ -131,19 +120,13 @@ body {
   cursor: pointer;
   transition: background 0.3s;
 }
-
 #chatbox button:hover {
   background-color: #3a6580;
 }
 
-/* Recording controls (start/stop) */
-#recording-controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-#recording-controls button {
+/* Recording Controls */
+#recordingControls,
+#recordingPrompt button {
   padding: 10px 15px;
   border: none;
   background-color: #4b79a1;
@@ -151,33 +134,30 @@ body {
   border-radius: 5px;
   cursor: pointer;
   transition: background 0.3s;
+  margin: 5px;
 }
-
-#recording-controls button:hover {
+#recordingControls button:hover,
+#recordingPrompt button:hover {
   background-color: #3a6580;
 }
 
-/* Video container (centered) */
+/* Video Container */
 .video-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 10px;
 }
-
 #webcam {
   max-width: 80%;
   border: 2px solid #ccc;
   border-radius: 5px;
   margin-bottom: 10px;
 }
-
-/* Video controls (minimize, fullscreen) */
 .video-controls {
   display: flex;
   gap: 10px;
 }
-
 .video-controls button {
   padding: 6px 10px;
   border: none;
@@ -187,12 +167,11 @@ body {
   cursor: pointer;
   transition: background 0.3s;
 }
-
 .video-controls button:hover {
   background-color: #3a6580;
 }
 
-/* Chat messages (user/bot) */
+/* Chat Message Styles */
 .message {
   padding: 8px 12px;
   margin: 5px 0;
@@ -200,12 +179,10 @@ body {
   max-width: 70%;
   word-wrap: break-word;
 }
-
 .user-message {
   background-color: #d1e7dd;
   align-self: flex-end;
 }
-
 .bot-message {
   background-color: #f8d7da;
   align-self: flex-start;

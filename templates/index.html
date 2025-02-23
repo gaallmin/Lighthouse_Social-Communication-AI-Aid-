@@ -5,9 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lighthouse</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Inline CSS to ensure prompt and controls are visible */
+    #recordingPrompt {
+      margin: 10px 0;
+      text-align: center;
+    }
+    #recordingPrompt p {
+      margin-bottom: 10px;
+      font-size: 1em;
+      color: #333;
+    }
+    #recordingControls button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      background-color: #4b79a1;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #recordingControls button:hover {
+      background-color: #3a6580;
+    }
+  </style>
 </head>
 <body>
-  <!-- Custom Title Bar (Draggable) -->
+  <!-- Custom Title Bar -->
   <div class="drag-bar">
     <h3 class="drag-title">Lighthouse</h3>
     <button id="closeApp" class="close-btn">❌</button>
@@ -17,7 +43,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-header">
-        <img src="img/team7logo.png" alt="Lighthouse Logo" class="logo" />
+        <img src="{{ url_for('static', filename='img/team7logo.png') }}" alt="Lighthouse Logo" class="logo" />
         <h3 class="sidebar-title">Lighthouse</h3>
       </div>
       <ul>
@@ -35,22 +61,29 @@
       <!-- Chat Messages -->
       <div id="messages"></div>
 
-      <!-- Chatbox -->
+      <!-- Chatbox for manual input (if needed) -->
       <div id="chatbox">
-        <input type="text" id="userInput" placeholder="Type a message..."/>
+        <input type="text" id="userInput" placeholder="Enter your subtext here..." />
         <button id="sendBtn">Send</button>
       </div>
 
-      <!-- Unified Recording Controls -->
-      <div id="recording-controls">
-        <button id="startRecording">Start Recording</button>
-        <button id="stopRecording">Stop Recording</button>
+      <!-- Recording Prompt Area -->
+      <div id="recordingPrompt" style="display: none;">
+        <p>We got you, can you record your talk?</p>
+        <div id="recordingControls">
+          <button id="startRecording">Start Recording</button>
+          <button id="stopRecording" style="display: none;">Stop Recording</button>
+        </div>
       </div>
 
-      <!-- Video Container (centered) -->
+      <!-- End Chat Area -->
+      <div id="endChatArea" style="display: none;">
+        <button id="endChat">End Chat</button>
+      </div>
+
+      <!-- Video Container -->
       <div class="video-container">
         <video id="webcam" autoplay style="display: none;"></video>
-        <!-- Video-specific controls -->
         <div class="video-controls">
           <button id="minimizeVideo">➖</button>
           <button id="fullscreenVideo">🗖</button>

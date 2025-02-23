@@ -1,3 +1,5 @@
+const { contextBridge, ipcRenderer } = require("electron");
+
 contextBridge.exposeInMainWorld("electronAPI", {
     sendUserMessage: (message) => ipcRenderer.send("user-message", message),
     receiveMessage: (callback) => ipcRenderer.on("bot-response", (_, response) => callback(response)),

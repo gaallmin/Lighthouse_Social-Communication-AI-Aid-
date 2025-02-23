@@ -30,6 +30,13 @@ def start_avpointer():
     threading.Thread(target=av_pointer.start, daemon=True).start()
     return jsonify({"message": "AVPointer started"})
 
+@app.route("/stop_recording", methods=["POST"])
+def stop_recording():
+    av_pointer.transcription_enabled = False
+    av_pointer.face_detection_enabled = False
+    return jsonify({"message": "Recording stopped"})
+
+
 # Return the latest transcription from the AVPointer process
 @app.route("/transcribe", methods=["GET"])
 def get_transcription():
@@ -38,11 +45,13 @@ def get_transcription():
 # Chat API: Return conversation pointers generated via OpenAI
 @app.route("/chat", methods=["POST"])
 def chat():
-    pointer = getPointer()
+    user_subtext = request.json.get("message", None)
+    pointer = getPointer(user_subtext)
+    # Use dictionary key lookups since pointer is a dict
     return jsonify({
-        "subtext": pointer.subtext,
-        "advice": pointer.advice,
-        "reflection": pointer.reflection
+        "subtext": pointer["subtext"],
+        "advice": pointer["advice"],
+        "reflection": pointer["reflection"]
     })
 
 # Alternate endpoint to get conversation pointers
@@ -80,6 +89,8 @@ def upload():
         return jsonify({"error": str(e)}), 500
 
     return jsonify({"emotion": emotion, "confidence": confidence})
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
