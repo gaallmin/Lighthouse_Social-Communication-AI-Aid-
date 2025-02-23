@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from openai import OpenAI
 import os
-import pandas as pd
+
 
 class Pointer(BaseModel):
     subtext: str
