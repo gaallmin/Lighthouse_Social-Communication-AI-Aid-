@@ -37,8 +37,8 @@ class AVPointerApp(QWidget):
         self.initUI()
         
         # Initialize AVPointer components
-        self.face_detection_enabled = True
-        self.transcription_enabled = True
+        self.face_detection_enabled = False
+        self.transcription_enabled = False
         self.transcription_text = ""
         self.dominant_emotion = ""
         self.confidence = 0.0
