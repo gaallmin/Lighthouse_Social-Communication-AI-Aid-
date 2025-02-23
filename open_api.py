@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from openai import OpenAI
+import pandas as pd
 import os
-
 
 class Pointer(BaseModel):
     subtext: str
@@ -40,5 +40,7 @@ def getPointer():
 
     return pointer
 
-pointer = getPointer()
-print(pointer.choices[0].message.content)
+if __name__ == "__main__":
+        
+    pointer = getPointer()
+    print(pointer.choices[0].message.content)

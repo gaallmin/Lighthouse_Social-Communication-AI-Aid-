@@ -7,6 +7,7 @@ import wave
 import threading
 import time
 from deepface import DeepFace
+from open_api import getPointer
 
 # Load OpenCV face detector
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
@@ -26,10 +27,9 @@ CWD = os.getcwd()
 # Conversation data filepath
 CONVO_FILEPATH = os.path.join(CWD,"convo_data.csv")
 
-
 # Write header to conversation data file
-with open(CONVO_FILEPATH, "a", newline="\n") as csv_file:
-    fieldnames = ["time", "transcription", "emotion"]
+with open(CONVO_FILEPATH, "w", newline="\n") as csv_file:
+    fieldnames = ["time", "transcription", "emotion", "confidence"]
     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
     writer.writeheader()
 
@@ -85,9 +85,12 @@ def transcribe_audio():
         print(f"Transcription: {transcription_text}")
 
         with open(CONVO_FILEPATH, "a", newline="\n") as csv_file:
-                fieldnames = ["time", "transcription", "emotion"]
-                writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-                writer.writerow({"time": time.time(), "transcription": transcription_text, "emotion": dominant_emotion})
+            fieldnames = ["time", "transcription", "emotion", "confidence"]
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer.writerow({"time": time.time(), "transcription": transcription_text, "emotion": dominant_emotion, "confidence": confidence})
+
+            pointer = getPointer()
+            print(pointer.choices[0].message.content)
 
 
 # Start transcription thread
@@ -121,6 +124,7 @@ while video.isOpened():
 
                 # Get dominant emotion
                 dominant_emotion = analyse[0]['dominant_emotion']
+                confidence = analyse[0]['face_confidence']
 
                 # Display text on frame
                 cv2.putText(frame, dominant_emotion, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
@@ -148,3 +152,4 @@ while video.isOpened():
 video.release()
 cv2.destroyAllWindows()
 audio.terminate()
+

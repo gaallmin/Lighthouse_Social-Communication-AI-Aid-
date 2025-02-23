@@ -1,9 +1,3 @@
-time,transcription,emotion
-1740282876.8848653, I have a lecture when we witness the differences. Do you think we're... it's the... Test Test.,neutral
-time,transcription,emotion
-time,transcription,emotion
-time,transcription,emotion
-1740283594.0668492, HTTCD,neutral
-time,transcription,emotion
-time,transcription,emotion
-1740284382.8850036, Is it jump up from like 20 to 25 like two days? When I was there it was up.,happy
+time,transcription,emotion,confidence
+1740286920.062701, Then you can try to do the implementation.,neutral,0.97
+1740286956.2220356, Thank you for your help.,happy,0.95
