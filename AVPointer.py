@@ -1,8 +1,4 @@
-# Main file for Lighthouse AI backend
-
-# This file creates an AVPointer - Audio-Visual Pointer for Conversations. it uses DeepFace for 
-# emotion detection, Whisper for speech transcription and OpenAI API for generating conversation pointers
-
+import sys
 import cv2
 import os
 import csv
@@ -11,14 +7,23 @@ import pyaudio
 import wave
 import threading
 import time
+import numpy as np
 from deepface import DeepFace
 from open_api import getPointer
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, 
+    QHBoxLayout, QPushButton, QTextEdit, QListWidget, 
+    QLabel, QLineEdit, QFrame
+)
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import Qt
 
 # Current working directory
 CWD = os.getcwd()
 
 # Conversation data filepath
-CONVO_FILEPATH = os.path.join(CWD,"convo_data.csv")
+CONVO_FILEPATH = os.path.join(CWD, "convo_data.csv")
 
 # Audio recording parameters
 FORMAT = pyaudio.paInt16
@@ -26,32 +31,120 @@ CHANNELS = 1
 RATE = 16000  # Whisper works best with 16kHz
 CHUNK = 1024
 
-# Class to create AVPointer - Audio-Visual Pointer for Conversations
-class AVPointerCreator():
-    # Toggle variables
+class AVPointerApp(QWidget):
     def __init__(self):
-        self.face_detection_enabled = False  # Start with face detection enabled
-        self.transcription_enabled = False   # Start with transcription enabled
-        self.transcription_text = ""  # Store last transcribed text
-        self.stop_transcription = False  # Control flag for transcription
-        self.dominant_emotion = ""  # Store last dominant emotion
-        self.confidence = 0.0  # Store last emotion confidence
-
-        # Write header to conversation data file
-        with open(CONVO_FILEPATH, "w", newline="\n") as csv_file:
-            fieldnames = ["time", "transcription", "emotion", "confidence"]
-            self.writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-            self.writer.writeheader()
-
-        # Load Whisper model (tiny for better speed)
+        super().__init__()
+        self.initUI()
+        
+        # Initialize AVPointer components
+        self.face_detection_enabled = True
+        self.transcription_enabled = True
+        self.transcription_text = ""
+        self.dominant_emotion = ""
+        self.confidence = 0.0
+        
         self.whisper_model = whisper.load_model("tiny")
-
-        # Initialize PyAudio
         self.audio = pyaudio.PyAudio()
-
-        # Load OpenCV face detector
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+        
+        self.transcription_thread = threading.Thread(target=self.transcribe_audio, daemon=True)
+        self.transcription_thread.start()
+        
+        # Start video feed
+        self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_frame)
+        self.timer.start(30)  # Update every 30 ms
+    
+    def initUI(self):
 
+        self.setWindowTitle("Lighthouse Chatbot")
+        self.setGeometry(100, 100, 900, 600)
+        
+        # Main Container
+        main_widget = QHBoxLayout()
+        self.setLayout(main_widget)
+
+        # Sidebar
+        sidebar = QVBoxLayout()
+        sidebar.setAlignment(Qt.AlignTop)
+        sidebar.setContentsMargins(10, 10, 10, 10)
+
+        # Logo
+        logo_label = QLabel(self)
+        pixmap = QPixmap("lighthouse_logo.png")  # Replace with actual logo path
+        logo_label.setPixmap(pixmap)
+        logo_label.setScaledContents(True)
+        logo_label.setFixedSize(100, 100)
+
+        # Sidebar Buttons
+        home_button = QPushButton("🏠 Home")
+        history_button = QPushButton("History")
+        stats_button = QPushButton("ℹ️ Personal Stats")
+        settings_button = QPushButton("⚙️ Settings")
+
+        # Styling buttons
+        for button in [home_button, history_button, stats_button, settings_button]:
+            button.setFixedHeight(40)
+
+        # Adding widgets to sidebar
+        sidebar.addWidget(logo_label, alignment=Qt.AlignCenter)
+        sidebar.addWidget(home_button)
+        sidebar.addWidget(history_button)
+        sidebar.addWidget(stats_button)
+        sidebar.addWidget(settings_button)
+        sidebar.addStretch()
+
+        # Vertical separator
+        separator = QFrame()
+        separator.setFrameShape(QFrame.VLine)
+        separator.setFrameShadow(QFrame.Sunken)
+
+        # Chat Section Layout
+        chat_layout = QVBoxLayout()
+        chat_layout.setContentsMargins(10, 10, 10, 10)
+
+        # Title Bar
+        title_label = QLabel("Chatbot with Webcam")
+        title_label.setStyleSheet("font-size: 16px; font-weight: bold; padding: 10px; background-color: #F0F0F0; border-bottom: 2px solid #CCC;")
+        title_label.setAlignment(Qt.AlignLeft)
+
+        chat_layout.addWidget(title_label)
+
+        # Video Feed
+        self.video_label = QLabel(self)
+        self.video_label.setFixedSize(640, 480)
+        self.video_label.setStyleSheet("background-color: black;")
+        chat_layout.addWidget(self.video_label)
+
+        # Chat Display Area (QTextEdit)
+        self.chatbox = QTextEdit()
+        self.chatbox.setReadOnly(True)
+        chat_layout.addWidget(self.chatbox)
+
+        # Input Bar
+        input_layout = QHBoxLayout()
+        self.input_field = QLineEdit()
+        self.input_field.setPlaceholderText("Enter your subtext here...")
+        send_button = QPushButton("Send")
+        send_button.setFixedHeight(30)
+        send_button.clicked.connect(self.button_clicked)
+
+        input_layout.addWidget(self.input_field)
+        input_layout.addWidget(send_button)
+
+        chat_layout.addLayout(input_layout)
+
+        # Add layouts to main layout
+        main_widget.addLayout(sidebar, 1)
+        main_widget.addWidget(separator)
+        main_widget.addLayout(chat_layout, 3)
+    
+    def button_clicked(self):
+        print("Button Clicked")
+        self.face_detection_enabled = not self.face_detection_enabled
+        self.transcription_enabled = not self.transcription_enabled
+    
     # Function to continuously transcribe audio
     def transcribe_audio(self):
         while True:
@@ -99,75 +192,45 @@ class AVPointerCreator():
 
                 pointer = getPointer()
                 print(pointer.choices[0].message.content)
-
-    def start_transcribe_thread(self):
-        # Start transcription thread
-        transcription_thread = threading.Thread(target=self.transcribe_audio, daemon=True)
-        transcription_thread.start()
-
-    def start_video_thread(self):
-        # Open webcam
-        video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-
-        if not video.isOpened():
-            raise IOError("Cannot open webcam")
-
-        while video.isOpened():
-            _, frame = video.read()
-
+    
+    def update_frame(self):
+        ret, frame = self.video.read()
+        if ret:
+            frame = cv2.flip(frame, 1)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            
             if self.face_detection_enabled:
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 faces = self.face_cascade.detectMultiScale(gray, 1.1, 4)
-
                 for (x, y, w, h) in faces:
-                    # Draw rectangle around face
                     cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-
-                    # Crop and convert face to RGB
                     face_roi = frame[y:y+h, x:x+w]
                     face_roi_rgb = cv2.cvtColor(face_roi, cv2.COLOR_BGR2RGB)
-
+                    
                     try:
-                        # Analyze emotions
                         analyse = DeepFace.analyze(face_roi_rgb, actions=['emotion'], enforce_detection=False)
-
-                        # Get dominant emotion
                         self.dominant_emotion = analyse[0]['dominant_emotion']
                         self.confidence = analyse[0]['face_confidence']
-
-                        # Display text on frame
                         cv2.putText(frame, self.dominant_emotion, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
                     except Exception as e:
                         print("DeepFace Error:", str(e))
-
-            # Display real-time transcription on screen
+            
             cv2.putText(frame, "Transcription:", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
             cv2.putText(frame, self.transcription_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-
-            # Show frame
-            cv2.imshow("Emotion Detection & Speech Transcription", frame)
-
-            # Key press detection
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord('q'):  # Quit on "q"
-                break
-            elif key == ord('d'):  # Toggle face detection and transcription on "d"
-                self.face_detection_enabled = not self.face_detection_enabled
-                self.transcription_enabled = not self.transcription_enabled
-                print(f"Face Detection: {'Enabled' if self.face_detection_enabled else 'Disabled'}")
-                print(f"Transcription: {'Enabled' if self.transcription_enabled else 'Disabled'}")
-                    
-        # Cleanup
-        video.release()
+            
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            h, w, ch = frame.shape
+            bytes_per_line = ch * w
+            qimg = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+            self.video_label.setPixmap(QPixmap.fromImage(qimg))
+    
+    def closeEvent(self, event):
+        self.video.release()
+        self.transcription_enabled = False
         cv2.destroyAllWindows()
-        self.audio.terminate()
-
-    def start(self):
-        self.start_transcribe_thread()
-        self.start_video_thread()
-
+        event.accept()
+        
 if __name__ == "__main__":
-    # Start AVPointerCreator
-    av_pointer_creator = AVPointerCreator()
-    av_pointer_creator.start()
-
+    app = QApplication(sys.argv)
+    window = AVPointerApp()
+    window.show()
+    sys.exit(app.exec_())
