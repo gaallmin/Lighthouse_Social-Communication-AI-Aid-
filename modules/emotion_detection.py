@@ -90,6 +90,7 @@ class AVPointerCreator():
             with open(CONVO_FILEPATH, "a", newline="\n") as csv_file:
                 fieldnames = ["time", "transcription", "emotion", "confidence"]
                 writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+                
                 writer.writerow({"time": time.time(), "transcription": self.transcription_text, "emotion": self.dominant_emotion, "confidence": self.confidence})
                 print("Writing row", time.time(), self.transcription_text)
                 pointer = getPointer()

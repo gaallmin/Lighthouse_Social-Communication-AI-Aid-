@@ -187,3 +187,13 @@ body {
   background-color: #f8d7da;
   align-self: flex-start;
 }
+
+.video-container {
+  position: relative;
+}
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* so clicks pass through to the video */
+}
