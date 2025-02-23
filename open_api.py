@@ -8,7 +8,7 @@ class Pointer(BaseModel):
     advice: str
     reflection: str
 
-def getPointer():
+def getPointer(context = "someone"):
     # API Key in .env file
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
@@ -22,10 +22,10 @@ def getPointer():
 
     data = pd.read_csv(CONVO_FILEPATH)
 
-    prompt= f""" I'm in the middle of a conversation with someone, some of their previous statements in table format are: {data}.\
+    prompt= f""" I'm in the middle of a conversation with {context}. some of their previous statements in table format are: {data}.\
             Their latest statement is the last line in the sheet. Considering the associated emotion and confidence level, give \
             maximum 50 characters on any subtext that is being conveyed and 50 more characters on any advice you would give on \
-            how to act in this situation, finally give 150 characters on things to reflect on after the conversation is over, give full context for this."""
+            how to act in this situation."""
 
     pointer = client.beta.chat.completions.parse(
         model="gpt-4o-mini",
@@ -35,7 +35,6 @@ def getPointer():
                 "content": prompt
             }
         ],
-        response_format=Pointer,
     )
 
     return pointer

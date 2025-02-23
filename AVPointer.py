@@ -79,6 +79,8 @@ class AVPointerApp(QWidget):
 
         # Sidebar Buttons
         home_button = QPushButton("🏠 Home")
+        
+        #home_button.setStyleSheet("background-color : ##3A5A6F;") 
         history_button = QPushButton("History")
         stats_button = QPushButton("ℹ️ Personal Stats")
         settings_button = QPushButton("⚙️ Settings")
@@ -125,13 +127,13 @@ class AVPointerApp(QWidget):
         # Input Bar
         input_layout = QHBoxLayout()
         self.input_field = QLineEdit()
-        self.input_field.setPlaceholderText("Enter your subtext here...")
-        send_button = QPushButton("Send")
-        send_button.setFixedHeight(30)
-        send_button.clicked.connect(self.button_clicked)
+        self.input_field.setPlaceholderText("I'm speaking to...")
+        get_pointer_button = QPushButton("Get Pointer")
+        get_pointer_button.setFixedHeight(30)
+        get_pointer_button.clicked.connect(self.button_clicked)
 
         input_layout.addWidget(self.input_field)
-        input_layout.addWidget(send_button)
+        input_layout.addWidget(get_pointer_button)
 
         chat_layout.addLayout(input_layout)
 
@@ -144,7 +146,7 @@ class AVPointerApp(QWidget):
         print("Button Clicked")
         self.face_detection_enabled = not self.face_detection_enabled
         self.transcription_enabled = not self.transcription_enabled
-    
+
     # Function to continuously transcribe audio
     def transcribe_audio(self):
         while True:
@@ -192,6 +194,7 @@ class AVPointerApp(QWidget):
 
                 pointer = getPointer()
                 print(pointer.choices[0].message.content)
+                self.chatbox.append(pointer.choices[0].message.content)
     
     def update_frame(self):
         ret, frame = self.video.read()
