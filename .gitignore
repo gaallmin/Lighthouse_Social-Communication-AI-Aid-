@@ -1,3 +1,8 @@
+.env
+__pycache__
+convo_data.csv
+temp.wav
+=======
 .venv/
 face_log.csv
 output.wav
