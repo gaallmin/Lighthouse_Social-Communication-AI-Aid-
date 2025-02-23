@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot with Webcam</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+        <!-- Custom Title Bar (Draggable) -->
+<div class="drag-bar">
+  <h3 class="drag-title">Lighthouse</h3>
+</div>
+  <body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="window-controls">
+          <button id="minimizeApp">➖</button>
+          <button id="fullscreenApp">🗖</button>
+          <button id="closeApp">❌</button>
+      </div>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+      <img src="img/team7logo.png" alt="Lighthouse Logo" class="logo">
+      <h3 class="sidebar-title">Lighthouse</h3>
+  </div>
+  <ul>
+      <li id="homeTab" class="active">🏠 Home</li>
+      <li id="historyTab">History</li>>
+      <li id="aboutTab">ℹ️ Personal Stats</li>
+      <li id="settingsTab">⚙️ Settings</li>
+  </ul>
+</div>
+
+
+        <!-- Main Content -->
+        <div class="content">
+          <!-- Chat Messages (Now in the Main Content Area) -->
+          <div id="messages"></div>
+      
+          <!-- Input, Send Button, and Webcam Button at the Bottom -->
+          <div id="chatbox">
+              <input type="text" id="userInput" placeholder="Type a message...">
+              <button id="sendBtn">Send</button>
+              <button id="startWebcam">Start Webcam</button>
+          </div>
+      
+          <!-- Webcam Video (Will Only Appear When Started) -->
+          <video id="webcam" autoplay style="display: none;"></video>
+      </div>
+    </div>
+
+    <!-- Link JavaScript -->
+    <script src="scripts.js"></script>
+</body>
+</html>
