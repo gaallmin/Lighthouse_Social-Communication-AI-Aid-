@@ -2,16 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lighthouse</title>
-  <!-- Link your CSS file -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <!-- Custom Title Bar (Draggable) -->
   <div class="drag-bar">
     <h3 class="drag-title">Lighthouse</h3>
-    <!-- Close button only -->
     <button id="closeApp" class="close-btn">❌</button>
   </div>
 
@@ -37,18 +35,16 @@
       <!-- Chat Messages -->
       <div id="messages"></div>
 
-      <!-- Chatbox (separate from recording controls) -->
+      <!-- Chatbox -->
       <div id="chatbox">
         <input type="text" id="userInput" placeholder="Type a message..."/>
         <button id="sendBtn">Send</button>
       </div>
 
-      <!-- Recording Controls -->
+      <!-- Unified Recording Controls -->
       <div id="recording-controls">
-        <button id="startWebcam">Start Webcam</button>
-        <button id="stopWebcam">Stop Webcam</button>
-        <button id="startAudio">Start Audio</button>
-        <button id="stopAudio">Stop Audio</button>
+        <button id="startRecording">Start Recording</button>
+        <button id="stopRecording">Stop Recording</button>
       </div>
 
       <!-- Video Container (centered) -->
@@ -63,7 +59,7 @@
     </div>
   </div>
 
-  <!-- Scripts -->
+  <!-- JavaScript Files -->
   <script src="{{ url_for('static', filename='rerender.js') }}"></script>
   <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>

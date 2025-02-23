@@ -3,19 +3,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // UI Elements
     const webcam = document.getElementById("webcam");
-    const startWebcamBtn = document.getElementById("startWebcam");
-    const stopWebcamBtn = document.getElementById("stopWebcam");
-    const startAudioBtn = document.getElementById("startAudio");
-    const stopAudioBtn = document.getElementById("stopAudio");
+    const startRecordingBtn = document.getElementById("startRecording");
+    const stopRecordingBtn = document.getElementById("stopRecording");
     const sendBtn = document.getElementById("sendBtn");
     const userInput = document.getElementById("userInput");
     const messagesDiv = document.getElementById("messages");
-
-    // Video-specific control buttons (for video only)
     const minimizeVideoBtn = document.getElementById("minimizeVideo");
     const fullscreenVideoBtn = document.getElementById("fullscreenVideo");
 
-    // 🚀 Sidebar Tabs Handling
+    // Sidebar Tabs Handling
     const sidebarItems = document.querySelectorAll(".sidebar li");
     sidebarItems.forEach(item => {
         item.addEventListener("click", function () {
@@ -29,46 +25,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 🚀 Start Webcam (Video recording)
-    startWebcamBtn.addEventListener("click", async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        webcam.srcObject = stream;
-        webcam.style.display = "block"; // Show video element
-        window.electronAPI.startVideo(); // Notify main process (if needed)
-    });
+    // Global variable to store the audio MediaRecorder instance
+    let currentMediaRecorder = null;
 
-    // 🚀 Stop Webcam
-    stopWebcamBtn.addEventListener("click", () => {
-        if (webcam.srcObject) {
-            webcam.srcObject.getTracks().forEach(track => track.stop());
-            window.electronAPI.stopVideo();
-        }
-        webcam.style.display = "none";
-    });
+    // Unified Start Recording: starts both video and audio
+    startRecordingBtn.addEventListener("click", async () => {
+        // Start Video Recording
+        const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        webcam.srcObject = videoStream;
+        webcam.style.display = "block";
+        window.electronAPI.startVideo();
 
-    // 🚀 Video Controls: Minimize (hide) and Fullscreen (for video container)
-    minimizeVideoBtn.addEventListener("click", () => {
-        // Toggle video visibility only
-        if (webcam.style.display === "none") {
-            webcam.style.display = "block";
-        } else {
-            webcam.style.display = "none";
-        }
-    });
-
-    fullscreenVideoBtn.addEventListener("click", () => {
-        const videoContainer = document.querySelector(".video-container");
-        if (!document.fullscreenElement) {
-            videoContainer.requestFullscreen();
-        } else {
-            document.exitFullscreen();
-        }
-    });
-
-    // 🚀 Start Audio Recording
-    startAudioBtn.addEventListener("click", async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream);
+        // Start Audio Recording
+        const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(audioStream);
         let audioChunks = [];
 
         mediaRecorder.ondataavailable = (event) => {
@@ -82,38 +52,88 @@ document.addEventListener("DOMContentLoaded", function () {
 
         window.electronAPI.startAudio();
         mediaRecorder.start();
+        currentMediaRecorder = mediaRecorder;
     });
 
-    // 🚀 Stop Audio Recording
-    stopAudioBtn.addEventListener("click", () => {
+ // Unified Stop Recording: stops both video and audio and fetches analysis
+stopRecordingBtn.addEventListener("click", () => {
+    // Stop Video Recording
+    if (webcam.srcObject) {
+        webcam.srcObject.getTracks().forEach(track => track.stop());
+        window.electronAPI.stopVideo();
+    }
+    webcam.style.display = "none";
+
+    // Stop Audio Recording
+    if (currentMediaRecorder) {
+        currentMediaRecorder.stop();
         window.electronAPI.stopAudio();
+        currentMediaRecorder = null;
+    }
+
+    // After stopping both, fetch the analysis pointer from the backend.
+    fetch("http://127.0.0.1:5000/pointer")
+        .then(response => response.json())
+        .then(data => {
+            // Update the chat UI with the analysis result.
+            // You can display it as one message or separate lines for subtext, advice, and reflection.
+            rerender.addMessage("Analysis Subtext: " + data.subtext, "bot");
+            rerender.addMessage("Advice: " + data.advice, "bot");
+            rerender.addMessage("Reflection: " + data.reflection, "bot");
+        })
+        .catch(error => console.error("❌ Analysis Fetch Error:", error));
+});
+
+
+    // Video Controls: Minimize toggles video visibility
+    minimizeVideoBtn.addEventListener("click", () => {
+        if (webcam.style.display === "none") {
+            webcam.style.display = "block";
+        } else {
+            webcam.style.display = "none";
+        }
     });
 
-    // 🚀 Send Chat Message
+    // Video Controls: Fullscreen toggles fullscreen for the video container
+    fullscreenVideoBtn.addEventListener("click", () => {
+        const videoContainer = document.querySelector(".video-container");
+        if (!document.fullscreenElement) {
+            videoContainer.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    });
+
     sendBtn.addEventListener("click", function () {
         const userMessage = userInput.value.trim();
         if (userMessage === "") return;
-
-        // Send message via Electron API (if used) and update UI
-        window.electronAPI.sendUserMessage(userMessage);
-        rerender.addMessage(userMessage, "user");
+    
+        // Clear the input field
         userInput.value = "";
-
+    
+        // Send the user's message (which will be treated as the subtext) to the backend.
         fetch("http://127.0.0.1:5000/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: userMessage })
         })
         .then(response => response.json())
-        .then(data => rerender.addMessage(data.response, "bot"))
+        .then(data => {
+            // Display the user's input as the subtext message.
+            rerender.addMessage("Subtext: " + userMessage, "user");
+            // Display the returned pointer advice and reflection as the bot's response.
+            rerender.addMessage("Advice: " + data.advice + " | Reflection: " + data.reflection, "bot");
+        })
         .catch(error => console.error("❌ Chatbot Error:", error));
     });
+    
+    
 
-    // 🚀 Receive Chatbot Response from Electron
+    // Receive Chatbot Response from Electron
     window.electronAPI.receiveMessage((response) => {
         rerender.addMessage(response, "bot");
     });
 
-    // (Optional) If you still want global window controls for closing the app:
+    // Global Window Close (if needed)
     document.getElementById("closeApp").addEventListener("click", () => window.electronAPI.closeApp());
 });
