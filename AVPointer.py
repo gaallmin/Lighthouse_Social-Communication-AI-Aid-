@@ -195,6 +195,7 @@ class AVPointerApp(QWidget):
                 pointer = getPointer()
                 print(pointer.choices[0].message.content)
                 self.chatbox.append(pointer.choices[0].message.content)
+                self.chatbox.append("\n")
     
     def update_frame(self):
         ret, frame = self.video.read()
