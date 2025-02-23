@@ -12,26 +12,62 @@ script.onload = function () {
 
 // Prompt user for context if not set
 window.onload = function() {
-    let context = localStorage.getItem("interactionContext");
+    console.log("Extension loaded. Waiting for user to enable webcam.");
     
-    if (!context || context === "Casual Meeting") {
-        context = prompt("What is the context of your interaction? (e.g., Serious Meeting, Friends, Casual Chat)");
-        if (context) {
+    // Create a button to enable webcam manually
+    const webcamButton = document.createElement("button");
+    webcamButton.innerText = "Enable Webcam";
+    webcamButton.style.position = "fixed";
+    webcamButton.style.bottom = "20px";
+    webcamButton.style.left = "20px";
+    webcamButton.style.padding = "10px";
+    webcamButton.style.backgroundColor = "#28a745";
+    webcamButton.style.color = "white";
+    webcamButton.style.border = "none";
+    webcamButton.style.borderRadius = "5px";
+    webcamButton.style.cursor = "pointer";
+    webcamButton.style.zIndex = "10002";
+    document.body.appendChild(webcamButton);
+    
+    webcamButton.addEventListener("click", function() {
+        console.log("Requesting webcam and microphone access...");
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then((stream) => {
+                console.log("Webcam and Microphone access granted.");
+
+                // Display webcam preview
+                const videoElement = document.createElement("video");
+                videoElement.srcObject = stream;
+                videoElement.autoplay = true;
+                videoElement.style.position = "fixed";
+                videoElement.style.bottom = "10px";
+                videoElement.style.right = "10px";
+                videoElement.style.width = "200px";
+                videoElement.style.height = "150px";
+                videoElement.style.border = "2px solid white";
+                videoElement.style.borderRadius = "10px";
+                videoElement.style.zIndex = "10001";
+                document.body.appendChild(videoElement);
+            })
+            .catch((err) => console.error("Webcam/Microphone access denied:", err));
+    });
+    
+    setTimeout(() => {
+        let context = localStorage.getItem("interactionContext");
+        if (!context || context === "Casual Meeting") {
+            context = prompt("What is the context of your interaction? (e.g., Serious Meeting, Friends, Casual Chat)") || "General";
             localStorage.setItem("interactionContext", context);
             chrome.runtime.sendMessage({ action: "updateContext", context: context }); // Send context to popup
             console.log("User selected context:", context);
         }
-    }
-
-    // Wait until the overlay is added before updating the context
-    setTimeout(() => {
+        
         let contextElement = document.getElementById("context");
         if (contextElement) {
-            contextElement.innerText = context || "General";
+            contextElement.innerText = context;
         } else {
             console.error("Context element not found!");
         }
-    }, 100); // Small delay to ensure the DOM is ready
+    }, 500); // Small delay to ensure the DOM is ready
 };
 
 // Create an overlay div
@@ -57,6 +93,13 @@ toneOverlay.innerHTML = `
 `;
 document.body.appendChild(toneOverlay);
 
+// Send stored context to popup on request
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "getContext") {
+        sendResponse({ context: localStorage.getItem("interactionContext") || "General" });
+    }
+});
+
 // Function to update the overlay with detected emotions
 function updateOverlay(emotion, confidence, suggestion) {
     const context = localStorage.getItem("interactionContext") || "General";
@@ -64,19 +107,19 @@ function updateOverlay(emotion, confidence, suggestion) {
     document.getElementById("emotion").innerText = emotion || "Unknown";
     document.getElementById("confidence").innerText = confidence ? confidence + "%" : "-";
     document.getElementById("suggestion").innerText = suggestion || "No suggestions available.";
+
+    // Save values for popup
+    chrome.storage.local.set({ context, emotion, confidence, suggestion });
 }
 
-// Retrieve stored context
-function getContext() {
-    return localStorage.getItem("interactionContext") || "General";
-}
-
-// Set context from popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === "setContext") {
-        localStorage.setItem("interactionContext", message.context);
-        console.log("Updated context:", message.context);
-        updateOverlay("", "", ""); // Refresh overlay with new context
+    if (message.action === "toggleRecording") {
+        isRecording = !isRecording;
+        document.getElementById("recordButton").innerText = isRecording ? "Stop Recording" : "Start Recording";
+        document.getElementById("recordButton").style.backgroundColor = isRecording ? "#dc3545" : "#28a745";
+
+        // Save recording status
+        chrome.storage.local.set({ isRecording });
     }
 });
 
@@ -89,51 +132,4 @@ document.getElementById("recordButton").addEventListener("click", function() {
     chrome.runtime.sendMessage({ action: "toggleRecording" });
     document.getElementById("recordButton").innerText = isRecording ? "Stop Recording" : "Start Recording";
     document.getElementById("recordButton").style.backgroundColor = isRecording ? "#dc3545" : "#28a745";
-});
-
-// Capture Zoom Web Audio & Send to Whisper API
-function startRecording() {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(async (stream) => {
-            mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
-            recordedChunks = [];
-
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    recordedChunks.push(event.data);
-                }
-            };
-
-            mediaRecorder.onstop = async () => {
-                const webmBlob = new Blob(recordedChunks, { type: "audio/webm" });
-                console.log("Recording stopped. Converting to MP3...");
-                const mp3Blob = await convertToMP3(webmBlob);
-                await saveRecording(mp3Blob);
-            };
-
-            mediaRecorder.start();
-            isRecording = true;
-            console.log("Recording started...");
-        })
-        .catch((err) => console.error("Error accessing microphone:", err));
-}
-
-// Stop recording
-function stopRecording() {
-    if (mediaRecorder && isRecording) {
-        mediaRecorder.stop();
-        isRecording = false;
-        console.log("Recording stopped.");
-    }
-}
-
-// Listen for messages from the popup to start/stop recording
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === "toggleRecording") {
-        if (isRecording) {
-            stopRecording();
-        } else {
-            startRecording();
-        }
-    }
 });
