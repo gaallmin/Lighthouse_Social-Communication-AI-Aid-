@@ -19,7 +19,172 @@ html, body {
 
 /* Sidebar */
 .sidebar {
+  width: 250px;/* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Base body styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f2f5;
+  color: #333;
+}
+
+/* Custom draggable title bar */
+.drag-bar {
+  background-color: #4b79a1;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  cursor: move;
+}
+
+.drag-title {
+  font-size: 1.2em;
+}
+
+/* App container layout */
+.app-container {
+  display: flex;
+  height: calc(100vh - 50px);
+}
+
+/* Sidebar styling */
+.sidebar {
   width: 250px;
+  background-color: #283e4a;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+}
+
+.sidebar-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sidebar-header .logo {
+  width: 100px;
+  margin-bottom: 10px;
+}
+
+.sidebar-header .sidebar-title {
+  font-size: 1.5em;
+}
+
+.sidebar ul {
+  list-style: none;
+  width: 100%;
+  padding: 0;
+}
+
+.sidebar ul li {
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: background 0.3s;
+  text-align: center;
+}
+
+.sidebar ul li:hover,
+.sidebar ul li.active {
+  background-color: #3a5a70;
+}
+
+/* Window controls (minimize, fullscreen, close) */
+.window-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.window-controls button {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  margin-left: 10px;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Main content area styling */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  position: relative;
+}
+
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Chatbox styles */
+#chatbox {
+  display: flex;
+  gap: 10px;
+}
+
+#chatbox input[type="text"] {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#chatbox button {
+  padding: 10px 15px;
+  border: none;
+  background-color: #4b79a1;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#chatbox button:hover {
+  background-color: #3a6580;
+}
+
+/* Webcam video styling */
+#webcam {
+  width: 100%;
+  max-height: 300px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+/* Chat message styling */
+.message {
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 10px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+.user-message {
+  background-color: #d1e7dd;
+  align-self: flex-end;
+}
+
+.bot-message {
+  background-color: #f8d7da;
+  align-self: flex-start;
+}
+
   background: #304a61;
   color: white;
   padding: 20px;
