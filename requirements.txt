@@ -1,2 +1,0 @@
-deepface
-opencv-python
