@@ -2,7 +2,6 @@
 ● Prototyped an accessibility tool in 30 hours to help autistic users interpret facial expressions, tonality, and social cues  
 ● Built with Python, OpenAI API, Whisper, and DeepFace, delivering a real-time feedback MVP; got recognized for its 
 potential to enhance inclusive communication 
-# ---
 
 # Inspiration
 One of our members, Min Jegal, brought up experiences she had while teaching children with ADHD and Autism and how it affected the students' understanding of facial expression, social cues, and tonality of conversation. This inspired us to focus on a tool that could help people with disabilities to interpret conversation.
