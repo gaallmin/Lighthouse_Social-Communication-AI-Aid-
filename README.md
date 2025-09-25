@@ -1,5 +1,5 @@
 # 🕯 Lighthouse — Social Communication AI Aid  
- ▶ CHECK OUT OUR DEMO [HERE](https://youtu.be/Rs4V04QN3OU{target=_blank}) <br>
+ ▶ CHECK OUT OUR DEMO AND EXPLANATION [HERE](https://youtu.be/Rs4V04QN3OU{target=_blank}) <br>
  
 ● Prototyped an accessibility tool in 30 hours to help autistic users interpret facial expressions, tonality, and social cues  
 ● Built with Python, OpenAI API, Whisper, and DeepFace, delivering a real-time feedback MVP; got recognized for its 
